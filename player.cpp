@@ -8,8 +8,11 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
-    side = side;
-
+    ourside = side;
+    if(side == BLACK)
+        gofirst = true;
+    else
+        gofirst = false;
     // Create board object
     board = new Board();
 
@@ -49,19 +52,21 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
 
     // Updates local board based on opponent's move (if they moved)
+    // if we're going first then don't do the opponent's first move (since it's nullptr anyways)
+    if(!gofirst){
+        Side other = (ourside == BLACK) ? WHITE : BLACK;
 
-    Side other = (side == BLACK) ? WHITE : BLACK;
-    board->doMove(opponentsMove, other);
-    
+        board->doMove(opponentsMove, other);
+    }
+    gofirst = false;
     Move* m = new Move(0,0);
 
-    // Does first legal move if any
+    // Does first legal move if any by trying every possible move and returning first one that works (is legal)
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             m->setX(i);
             m->setY(j);
-            if (board->checkMove(m, side)){
-                board->doMove(m, side);
+            if (board->doMove(m, ourside)){
                 return m;
             }
         }
