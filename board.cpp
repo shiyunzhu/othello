@@ -179,3 +179,8 @@ void Board::setBoard(char data[]) {
         }
     }
 }
+
+// Returns score of this move
+int score(Move *m, Side side){
+    return 0;
+}
