@@ -48,23 +48,25 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * process the opponent's opponents move before calculating your own move
      */
 
-    // Updats local board based on opponent's move (if they moved)
-    if(opponentsMove != nullptr)
-        if(side == BLACK)
-            board->doMove(opponentsMove, WHITE);
-        else
-            board->doMove(opponentsMove, BLACK);
+    // Updates local board based on opponent's move (if they moved)
+
+    Side other = (side == BLACK) ? WHITE : BLACK;
+    board->doMove(opponentsMove, other);
+    
+    Move* m = new Move(0,0);
 
     // Does first legal move if any
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            Move move(i, j);
-            if (board->checkMove(&move, side)){
-                board->doMove(&move, side);
-                return &move;
+            m->setX(i);
+            m->setY(j);
+            if (board->checkMove(m, side)){
+                board->doMove(m, side);
+                return m;
             }
         }
     }
+
     // If no legal moves, return nullptr
     return nullptr;
 }
