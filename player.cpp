@@ -52,10 +52,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     // Updates local board based on opponent's move (if they moved)
 
     Side other = (side == BLACK) ? WHITE : BLACK;
-    board->doMove(opponentsMove, other);
+    if(opponentsMove != nullptr)
+        board->doMove(opponentsMove, other);
     
     Move* m = new Move(0,0);
-
+    
     // Does first legal move if any
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
