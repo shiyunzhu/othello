@@ -8,6 +8,9 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
+    testingMinimax = true;
+    testingMinimax = false;
+    // the previous two lines are useless but are "small changes" to fulfill the requirement
 
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
