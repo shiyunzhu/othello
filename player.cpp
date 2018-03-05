@@ -75,3 +75,34 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     // If no legal moves, return nullptr
     return nullptr;
 }
+// This is the doMove that generates moves made randomly 
+Move *Player::doMove2(Move *opponentsMove, int msLeft) {
+    /*
+     * TODO: Implement how moves your AI should play here. You should first
+     * process the opponent's opponents move before calculating your own move
+     */
+
+
+    // Updates local board based on opponent's move (if they moved)
+    // if we're going first then don't do the opponent's first move (since it's nullptr anyways)
+    if(!gofirst){
+        Side other = (ourside == BLACK) ? WHITE : BLACK;
+        board->doMove(opponentsMove, other);
+    }
+    gofirst = false;
+    Move* m = new Move(0,0);
+
+    // Does first legal move if any by trying every possible move and returning first one that works (is legal)
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            m->setX(i);
+            m->setY(j);
+            if (board->doMove(m, ourside)){
+                return m;
+            }
+        }
+    }
+
+    // If no legal moves, return nullptr
+    return nullptr;
+}
