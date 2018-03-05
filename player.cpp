@@ -72,6 +72,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
+    
+
     // If no legal moves, return nullptr
     return nullptr;
 }
