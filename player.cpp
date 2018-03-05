@@ -59,19 +59,52 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         board->doMove(opponentsMove, other);
     }
     gofirst = false;
-    Move* m = new Move(0,0);
+    //Move* m = new Move(0,0);
 
-    // Does first legal move if any by trying every possible move and returning first one that works (is legal)
+    // Array for legal moves
+    vector<Move> legal;
+    //Vector<int> score;
+    Move* m;
+    // Finds all of the legal moves and adds them to the vector
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            m->setX(i);
-            m->setY(j);
-            if (board->doMove(m, ourside)){
-                return m;
+            m = new Move(i, j);
+            //m->setX(i);
+            //m->setY(j);
+            if (board->checkMove(m, ourside)){
+                Move nm = *m;
+                legal.push_back(nm);
+                cerr << "Added move: " << i << " , " << j << endl;
             }
+            
         }
     }
+    cerr << "# of legal moves: " << legal.size() << endl;
+    int highest = -1;
+    int current = 0;
+    Move* best= nullptr;
+    // Calculate score of moves
+    for (unsigned int i = 0; i < legal.size(); i++) {
+        Board *tempB = board->copy();
+        Move *tempM = &legal[i];
+        tempB->doMove(tempM, ourside);
+        current = tempB->count(ourside);
+        cerr << "Current score: " << current << endl;
+        cerr << "Current move: " << legal[i].getX() << ", " << legal[i].getY() << endl;
+        if(current > highest){
+            best = tempM;
+            highest = current;
 
+            cerr << " Highest score = " << highest << endl;
+        }
+        cerr << "Current best: " << best->getX() << ", " << best->getY() << endl;
+        //score.push_back(temp->count(ourside));
+    }
+    return best;
+
+    
+    
+    
     
 
     // If no legal moves, return nullptr
