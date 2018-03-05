@@ -11,7 +11,7 @@ Player::Player(Side side) {
     side = side;
 
     // Create board object
-    Board board = Board();
+    board = new Board();
 
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
@@ -24,6 +24,9 @@ Player::Player(Side side) {
  * Destructor for the player.
  */
 Player::~Player() {
+
+    // Delete board
+    delete board;
 }
 
 /*
