@@ -104,12 +104,12 @@ bool Board::checkMove(Move *m, Side side) {
 /*
  * Modifies the board to reflect the specified move.
  */
-void Board::doMove(Move *m, Side side) {
+bool Board::doMove(Move *m, Side side) {
     // A nullptr move means pass.
-    if (m == nullptr) return;
+    if (m == nullptr) return true;
 
     // Ignore if move is invalid.
-    if (!checkMove(m, side)) return;
+    if (!checkMove(m, side)) return false;
 
     int X = m->getX();
     int Y = m->getY();
@@ -139,6 +139,7 @@ void Board::doMove(Move *m, Side side) {
         }
     }
     set(side, X, Y);
+    return true;
 }
 
 /*
