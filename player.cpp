@@ -47,5 +47,24 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
+
+    // Updats local board based on opponent's move (if they moved)
+    if(opponentsMove != nullptr)
+        if(side == BLACK)
+            board->doMove(opponentsMove, WHITE);
+        else
+            board->doMove(opponentsMove, BLACK);
+
+    // Does first legal move if any
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Move move(i, j);
+            if (board->checkMove(&move, side)){
+                board->doMove(&move, side);
+                return &move;
+            }
+        }
+    }
+    // If no legal moves, return nullptr
     return nullptr;
 }
