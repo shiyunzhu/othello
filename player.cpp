@@ -49,19 +49,23 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
 
     // Updats local board based on opponent's move (if they moved)
-    if(opponentsMove != nullptr)
+    if(opponentsMove != nullptr) {
         if(side == BLACK)
             board->doMove(opponentsMove, WHITE);
         else
             board->doMove(opponentsMove, BLACK);
+    }
 
+    Move *m;
     // Does first legal move if any
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            Move move(i, j);
+            Move move(i,j);
             if (board->checkMove(&move, side)){
                 board->doMove(&move, side);
-                return &move;
+                m = &move;
+                cerr << "Move: " << i << ", " << j << endl;
+                return m;
             }
         }
     }
