@@ -22,6 +22,9 @@ public:
 
     bool gofirst;
     Board *board;
+
+    int minimax(Board *board, int depth, bool maxPlayer, Move* move);
+    int getValue(Board *board);
 };
 
 #endif

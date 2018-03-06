@@ -8,6 +8,7 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
+
     ourside = side;
     if(side == BLACK)
         gofirst = true;
@@ -46,19 +47,30 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
 
 
     // Updates local board based on opponent's move (if they moved)
     // if we're going first then don't do the opponent's first move (since it's nullptr anyways)
+
+    Side other = (ourside == BLACK) ? WHITE : BLACK;
     if(!gofirst){
-        Side other = (ourside == BLACK) ? WHITE : BLACK;
+
         board->doMove(opponentsMove, other);
     }
     gofirst = false;
+
+    // Uses minimax when testingMinimax is true else goes to heuristic
+    if (testingMinimax) {
+        Move * move = new Move(-1, -1);
+        int best = minimax(board, 2, true, move);
+        if (move->getX() == -1) {
+            move = nullptr;
+        }
+        board->doMove(move, ourside);
+        return move;
+    }
+
+
 
     // Array for legal moves
     vector<Move*> legal;
@@ -75,15 +87,17 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
+
     int highest = -100;
     int current = -99;
     Move* best = nullptr;
+
     // Calculate score of moves
     for (unsigned int i = 0; i < legal.size(); i++) {
+
         Board *temp = board->copy();
         temp->doMove(legal[i], ourside);
-        //cerr << "Current highest: " << highest << endl;
-        //cerr << "Current Move: " << legal[i]->getX() << " , " << legal[i]->getY() << endl;
+
         current = temp->count(ourside);
         if(legal[i]->getX() == 0 || legal[i]->getX() == 7){
             if(legal[i]->getY() == 0 || legal[i]->getY() == 7)
@@ -111,17 +125,18 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             }
         }
         
-        //cerr << "Current score: " << current << endl;
     
+
         if(current > highest){
             best = legal[i];
             highest = current;
-            //cerr << "New highest: " << highest << endl;
         }
     }
-    //cerr << "Chosen Move: " << best->getX() << " , " << best->getY() << endl;
+
     board->doMove(best, ourside);
-    //cerr << endl; //
+
+    
+
     return best;
 
     // If no legal moves, return nullptr
@@ -129,10 +144,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 }
 // This is the doMove that generates moves made randomly 
 Move *Player::doMove2(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
 
 
     // Updates local board based on opponent's move (if they moved)
@@ -158,3 +169,91 @@ Move *Player::doMove2(Move *opponentsMove, int msLeft) {
     // If no legal moves, return nullptr
     return nullptr;
 }
+
+// This is minimax recursive function
+int Player::minimax(Board *board, int depth, bool maxPlayer, Move* move) {
+
+    // uses getValue to return the value of the board at lowest level
+    if (depth == 0) {
+        return getValue(board);
+    }
+
+    // sets Side other to for the other side
+    Side other = (ourside == BLACK) ? WHITE : BLACK;
+
+    // if maximum player is true, then calculate the maximum value
+    if (maxPlayer) {
+
+        Move *m = new Move(0, 0);
+        int best = -999999;
+
+        // check all of the possible legal moves
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                m->setX(i);
+                m->setY(j);
+
+                // create new board
+                Board *temp = new Board();
+                temp = board->copy();
+
+                // if we can do the move, do the move
+                if (temp->doMove(m, ourside)) {
+
+                    // recursively find the score
+                    int score = minimax(temp, depth-1, false, move);
+
+                    // compare score to the best score
+                    if (score > best) {
+                        best = score;
+                        move->setX(i);
+                        move->setY(j);
+                    }
+                }
+
+                // clean up memory
+                delete temp;
+            }
+        }
+        delete m;
+        return best;
+    }
+
+    // calculate the minimum value, since its the other player's turn
+    else { 
+
+        Move *m = new Move(0, 0);
+        int best2 = 999999;
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+
+                m->setX(i);
+                m->setY(j);
+
+                Board *temp = new Board();
+                temp = board->copy();
+
+                if (temp->checkMove(m, other)) {
+                    temp->doMove(m, other);
+                    int score = minimax(temp, depth-1, true, move);
+
+                    if (score < best2) {
+                        best2 = score;
+                    }
+                }
+                delete temp;
+            }
+        }
+        delete m;
+        return best2;
+    }
+}
+
+// This is a helper function that calculates the value of position
+// based on a simple heuristic
+int Player::getValue(Board *board){
+    Side other = (ourside == BLACK) ? WHITE : BLACK;
+    return board->count(ourside) - board->count(other);
+}
+
