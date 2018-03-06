@@ -54,8 +54,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     // Updates local board based on opponent's move (if they moved)
     // if we're going first then don't do the opponent's first move (since it's nullptr anyways)
+
+    Side other = (ourside == BLACK) ? WHITE : BLACK;
     if(!gofirst){
-        Side other = (ourside == BLACK) ? WHITE : BLACK;
+
         board->doMove(opponentsMove, other);
     }
     gofirst = false;
@@ -78,18 +80,26 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     int highest = -1;
     int current = 0;
     Move* best= nullptr;
+
+
+
     // Calculate score of moves
     for (unsigned int i = 0; i < legal.size(); i++) {
+
         Board *temp = board->copy();
         temp->doMove(legal[i], ourside);
-        current = temp->count(ourside);
+        current = temp->count(ourside) - temp->count(other);
 
+        cerr << "Current move: " << legal[i]->getX() << ", " << legal[i]->getY() << endl;
+        cerr << "Current score: " << current << endl;
         if(current > highest){
             best = legal[i];
             highest = current;
         }
     }
 
+    cerr << "Chosen move: " << best->getX() << ", " << best->getY() << endl;
+    cerr << "Highest: " << highest << endl;
     board->doMove(best, ourside);
     return best;
 
