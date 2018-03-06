@@ -75,22 +75,53 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
-    int highest = -1;
-    int current = 0;
-    int index = 0;
+    int highest = -100;
+    int current = -99;
+    Move* best = nullptr;
     // Calculate score of moves
     for (unsigned int i = 0; i < legal.size(); i++) {
         Board *temp = board->copy();
         temp->doMove(legal[i], ourside);
+        //cerr << "Current highest: " << highest << endl;
+        //cerr << "Current Move: " << legal[i]->getX() << " , " << legal[i]->getY() << endl;
         current = temp->count(ourside);
-
+        if(legal[i]->getX() == 0 || legal[i]->getX() == 7){
+            if(legal[i]->getY() == 0 || legal[i]->getY() == 7)
+                current += 15;
+            else{
+                if(legal[i]->getY() == 1 || legal[i]->getY() == 6)
+                    current -= 5;
+                else current += 8;
+            }
+        }
+        else{
+            if(legal[i]->getY() == 0 || legal[i]->getY() == 7){
+                if(legal[i]->getX() == 0 || legal[i]->getX() == 7)
+                    current += 10;
+            else{
+                if(legal[i]->getX() == 1 || legal[i]->getX() == 6)
+                    current -= 5;
+                else current += 5;
+                }
+            }
+            else{
+                if(legal[i]->getX() == 1 || legal[i]->getX() == 6)
+                    if(legal[i]->getY() == 1 || legal[i]->getY() == 6)
+                        current -= 15;
+            }
+        }
+        
+        //cerr << "Current score: " << current << endl;
+    
         if(current > highest){
             best = legal[i];
             highest = current;
+            //cerr << "New highest: " << highest << endl;
         }
     }
-
+    //cerr << "Chosen Move: " << best->getX() << " , " << best->getY() << endl;
     board->doMove(best, ourside);
+    //cerr << endl; //
     return best;
 
     // If no legal moves, return nullptr
