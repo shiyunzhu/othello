@@ -82,7 +82,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     cerr << "# of legal moves: " << legal.size() << endl;
     int highest = -1;
     int current = 0;
-    Move* best= nullptr;
+    int index = 0;
     // Calculate score of moves
     for (unsigned int i = 0; i < legal.size(); i++) {
         Board *tempB = board->copy();
@@ -92,15 +92,22 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         cerr << "Current score: " << current << endl;
         cerr << "Current move: " << legal[i].getX() << ", " << legal[i].getY() << endl;
         if(current > highest){
-            best = tempM;
+            index = i;
+            cerr << "Index is now: " << index << endl;
             highest = current;
 
             cerr << " Highest score = " << highest << endl;
         }
-        cerr << "Current best: " << best->getX() << ", " << best->getY() << endl;
+        cerr << "Current best: " << (&legal[index])->getX() << ", " << (&legal[index])->getY() << endl;
         //score.push_back(temp->count(ourside));
     }
-    return best;
+    if(legal.size() == 0){
+        cerr << "No legal moves" << endl;
+        return nullptr;
+    }
+    cerr << "Index: " << index << endl;;
+    cerr << "Final best: " << (&legal[index])->getX() << ", " << (&legal[index])->getY() << endl;
+    return &(legal[index]);
 
     
     
@@ -108,7 +115,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     
 
     // If no legal moves, return nullptr
-    return nullptr;
+    // return nullptr;
 }
 // This is the doMove that generates moves made randomly 
 Move *Player::doMove2(Move *opponentsMove, int msLeft) {
