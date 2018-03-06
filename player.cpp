@@ -90,16 +90,12 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         temp->doMove(legal[i], ourside);
         current = temp->count(ourside) - temp->count(other);
 
-        cerr << "Current move: " << legal[i]->getX() << ", " << legal[i]->getY() << endl;
-        cerr << "Current score: " << current << endl;
         if(current > highest){
             best = legal[i];
             highest = current;
         }
     }
 
-    cerr << "Chosen move: " << best->getX() << ", " << best->getY() << endl;
-    cerr << "Highest: " << highest << endl;
     board->doMove(best, ourside);
     return best;
 
