@@ -8,7 +8,7 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
-
+    strat = true;
     ourside = side;
     if(side == BLACK)
         gofirst = true;
@@ -58,6 +58,17 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         board->doMove(opponentsMove, other);
     }
     gofirst = false;
+    
+    // uses testingmax2, for tournament play
+    if(strat){
+        Move * move = new Move(-1, -1);
+        int best = minimax2(board, 5, 5, true, move);
+        if (move->getX() == -1) {
+            move = nullptr;
+        }
+        board->doMove(move, ourside);
+        return move;
+    }
 
     // Uses minimax when testingMinimax is true else goes to heuristic
     if (testingMinimax) {
@@ -178,7 +189,7 @@ int Player::minimax(Board *board, int depth, bool maxPlayer, Move* move) {
         return getValue(board);
     }
 
-    // sets Side other to for the other side
+    // sets Side other to the other side
     Side other = (ourside == BLACK) ? WHITE : BLACK;
 
     // if maximum player is true, then calculate the maximum value
@@ -250,10 +261,129 @@ int Player::minimax(Board *board, int depth, bool maxPlayer, Move* move) {
     }
 }
 
+// This is minimax recursive function
+int Player::minimax2(Board *board2, int depth, int orig, bool maxPlayer, Move* move) {
+    Side tempo = ourside;
+    Side other = (ourside == BLACK) ? WHITE : BLACK;
+    if(!maxPlayer)
+        tempo = other;
+        
+    // uses getValue to return the value of the board at lowest level
+    if (depth == 0) {
+        if(maxPlayer)
+            return getValue2(board2, move, tempo);
+        return -1 * getValue2(board2, move, tempo);
+    }
+
+    // sets Side other to the other side
+    //Side other = (ourside == BLACK) ? WHITE : BLACK;
+
+    // if maximum player is true, then calculate the maximum value
+    if (maxPlayer) {
+
+        Move *m = new Move(0, 0);
+        int best = -999999;
+
+        // check all of the possible legal moves
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                m->setX(i);
+                m->setY(j);
+
+                // create new board
+                Board *temp = new Board();
+                temp = board2->copy();
+
+                // if we can do the move, do the move
+                if (temp->doMove(m, ourside)) {
+
+                    // recursively find the score
+                    int score = minimax2(temp, depth-1, orig, false, move);
+
+                    // compare score to the best score
+                    if (score >= best) {
+                        best = score;
+                        if(depth == orig){
+                            move->setX(i);
+                            move->setY(j);  
+                        }
+                    }
+                }
+
+                // clean up memory
+                delete temp;
+            }
+        }
+        delete m;
+        return best;
+    }
+
+    // calculate the minimum value, since its the other player's turn
+    else { 
+
+        Move *m = new Move(0, 0);
+        int best2 = 999999;
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+
+                m->setX(i);
+                m->setY(j);
+
+                Board *temp = new Board();
+                temp = board2->copy();
+
+                if (temp->checkMove(m, other)) {
+                    temp->doMove(m, other);
+                    int score = minimax2(temp, depth-1, orig, true, move);
+
+                    if (score <= best2) {
+                        best2 = score;
+                    }
+                }
+                delete temp;
+            }
+        }
+        delete m;
+        return best2;
+    }
+}
+
 // This is a helper function that calculates the value of position
 // based on a simple heuristic
 int Player::getValue(Board *board){
     Side other = (ourside == BLACK) ? WHITE : BLACK;
     return board->count(ourside) - board->count(other);
+}
+
+int Player::getValue2(Board *board2, Move* move, Side our){
+    Side other = (our == BLACK) ? WHITE : BLACK;
+    int current = board2->count(our) - board2->count(other);
+    if(move->getX() == 0 || move->getX() == 7){
+            if(move->getY() == 0 || move->getY() == 7)
+                current += 30;
+            else{
+                if(move->getY() == 1 || move->getY() == 6)
+                    current -= 15;
+                else current += 15;
+            }
+        }
+        else{
+            if(move->getY() == 0 || move->getY() == 7){
+                if(move->getX() == 0 || move->getX() == 7)
+                    current += 30;
+            else{
+                if(move->getX() == 1 || move->getX() == 6)
+                    current -= 15;
+                else current += 15;
+                }
+            }
+            else{
+                if(move->getX() == 1 || move->getX() == 6)
+                    if(move->getY() == 1 || move->getY() == 6)
+                        current -= 15;
+            }
+        }
+    return current;
 }
 
